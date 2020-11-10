@@ -1,3 +1,4 @@
+import time
 import sys
 import pygame
 
@@ -26,7 +27,7 @@ COLOR_DICT = {BLACK: RGB_BLACK,
 def draw_from_board(surface, board):
     for x in range(1, 7):
         for y in range(1, 13):
-            if 1 <= board[x][y] <= 4:
+            if 0 <= board[x][y] <= 4:
                 draw_puyo(surface, COLOR_DICT[board[x][y]], x, y)
             else:
                 draw_puyo_frame(surface, x, y)
@@ -42,6 +43,19 @@ def draw_puyo_frame(surface, x, y):
     upper_y = (12 - y) * SIZE
     rect = pygame.Rect(left_x, upper_y, SIZE, SIZE)
     pygame.draw.rect(surface, RGB_WHITE, rect, 1)
+
+def fall(board):
+    change_flag = False
+    for x in range(1, 7):
+        new_y = 1
+        for y in range(1, 13):
+            if board[x][y] is not 0:
+                if y is not new_y:
+                    board[x][new_y] = board[x][y]
+                    board[x][y] = 0
+                    change_flag = True
+                new_y += 1
+    return change_flag
 
 # prepare
 pygame.init() 
@@ -79,4 +93,8 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit(0)
+    is_change = fall(board)
+    if is_change:
+        draw_from_board(surface, board)
     pygame.display.update()
+    time.sleep(0.5)
